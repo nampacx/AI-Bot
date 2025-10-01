@@ -5,7 +5,7 @@ using Microsoft.Bot.Builder.TraceExtensions;
 using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Extensions.Logging;
 
-namespace EchoBot
+namespace FoundryAgentBot
 {
     public class AdapterWithErrorHandler : CloudAdapter
     {

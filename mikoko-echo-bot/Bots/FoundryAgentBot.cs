@@ -1,4 +1,4 @@
-﻿// Generated with EchoBot .NET Template version v4.22.0
+// Generated with EchoBot .NET Template version v4.22.0
 
 using System;
 using System.Collections.Generic;
@@ -6,17 +6,17 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Bot.Builder;
 using Microsoft.Bot.Schema;
-using EchoBot.Services;
+using FoundryAgentBot.Services;
 using Microsoft.Extensions.Logging;
 
-namespace EchoBot.Bots
+namespace FoundryAgentBot.Bots
 {
-    public class EchoBot : ActivityHandler
+    public class FoundryAgentBot : ActivityHandler
     {
         private readonly IAIFoundryAgentService _agentService;
-        private readonly ILogger<EchoBot> _logger;
+        private readonly ILogger<FoundryAgentBot> _logger;
 
-        public EchoBot(IAIFoundryAgentService agentService, ILogger<EchoBot> logger)
+        public FoundryAgentBot(IAIFoundryAgentService agentService, ILogger<FoundryAgentBot> logger)
         {
             _agentService = agentService;
             _logger = logger;

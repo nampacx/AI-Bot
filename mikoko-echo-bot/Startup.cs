@@ -8,9 +8,9 @@ using Microsoft.Bot.Connector.Authentication;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using EchoBot.Services;
+using FoundryAgentBot.Services;
 
-namespace EchoBot
+namespace FoundryAgentBot
 {
     public class Startup
     {
@@ -39,7 +39,7 @@ namespace EchoBot
             services.AddSingleton<IAIFoundryAgentService, AIFoundryAgentService>();
 
             // Create the bot as a transient. In this case the ASP Controller is expecting an IBot.
-            services.AddTransient<IBot, Bots.EchoBot>();
+            services.AddTransient<IBot, Bots.FoundryAgentBot>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

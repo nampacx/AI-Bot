@@ -35,14 +35,29 @@ namespace EchoBot.Services
 
             // Get configuration values
             _modelDeploymentName = configuration["AIFoundry:ModelDeploymentName"] ?? throw new InvalidOperationException("AIFoundry:ModelDeploymentName is required");
-            _agentName = configuration["AIFoundry:AgentName"] ?? throw new InvalidOperationException("AIFoundry:AgentName is required");
+            _logger.LogInformation("Model Deployment Name: {ModelDeploymentName}", _modelDeploymentName);
 
+            _agentName = configuration["AIFoundry:AgentName"] ?? throw new InvalidOperationException("AIFoundry:AgentName is required");
+            _logger.LogInformation("Agent Name: {AgentName}", _agentName);
 
             // Create the client
             var projectEndpoint = configuration["AIFoundry:ProjectEndpoint"] ?? throw new InvalidOperationException("AIFoundry:ProjectEndpoint is required");
+            _logger.LogInformation("Project Endpoint: {ProjectEndpoint}", projectEndpoint);
+
             var tenantId = configuration["MicrosoftAppTenantId"] ?? throw new InvalidOperationException("MicrosoftAppTenantId is required");
+            _logger.LogInformation("Tenant ID: {TenantId}", tenantId);
+
+            var managedIdentityClientId = configuration["AIFoundry:ManagedIdentityClientId"];
+            _logger.LogInformation("Managed Identity Client ID: {ManagedIdentityClientId}", managedIdentityClientId ?? "Not specified");
 
             var opts = new DefaultAzureCredentialOptions { TenantId = tenantId };
+            
+            // Add managed identity client ID if specified
+            if (!string.IsNullOrEmpty(managedIdentityClientId))
+            {
+                opts.ManagedIdentityClientId = managedIdentityClientId;
+                _logger.LogInformation("Using user-assigned managed identity with client ID: {ClientId}", managedIdentityClientId);
+            }
 
             var credential = new DefaultAzureCredential(opts);
             _logger.LogInformation("Using default Azure credential");

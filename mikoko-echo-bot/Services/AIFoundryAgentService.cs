@@ -1,4 +1,5 @@
 using Azure.AI.Agents.Persistent;
+using Azure.Core;
 using Azure.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -30,6 +31,8 @@ namespace EchoBot.Services
             _logger = logger;
             _threads = new ConcurrentDictionary<string, PersistentAgentThread>();
 
+            _logger.LogInformation("Initializing AI Foundry Agent Service");
+
             // Get configuration values
             _modelDeploymentName = configuration["AIFoundry:ModelDeploymentName"] ?? throw new InvalidOperationException("AIFoundry:ModelDeploymentName is required");
             _agentName = configuration["AIFoundry:AgentName"] ?? throw new InvalidOperationException("AIFoundry:AgentName is required");
@@ -38,8 +41,21 @@ namespace EchoBot.Services
             // Create the client
             var projectEndpoint = configuration["AIFoundry:ProjectEndpoint"] ?? throw new InvalidOperationException("AIFoundry:ProjectEndpoint is required");
             var tenantId = configuration["MicrosoftAppTenantId"] ?? throw new InvalidOperationException("MicrosoftAppTenantId is required");
+
             var opts = new DefaultAzureCredentialOptions { TenantId = tenantId };
-            _client = new PersistentAgentsClient(projectEndpoint, new DefaultAzureCredential(opts));
+
+            var credential = new DefaultAzureCredential(opts);
+            _logger.LogInformation("Using default Azure credential");
+
+            try
+            {
+                _client = new PersistentAgentsClient(projectEndpoint, credential);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create PersistentAgentsClient. If using managed identity, ensure it has proper permissions to access AI Foundry resources.");
+                throw;
+            }
 
             // Check if agent already exists or create a new one
             _agent = GetOrCreateAgent();
@@ -53,16 +69,16 @@ namespace EchoBot.Services
             {
                 // Get all existing agents
                 var existingAgents = _client.Administration.GetAgents();
-                
+
                 // Look for an agent with the same name
                 var existingAgent = existingAgents.FirstOrDefault(a => a.Name == _agentName);
-                
+
                 if (existingAgent != null)
                 {
                     _logger.LogInformation("Found existing agent with name '{AgentName}' and ID: {AgentId}", _agentName, existingAgent.Id);
                     return existingAgent;
                 }
-                
+
                 // No existing agent found, create a new one
                 _logger.LogInformation("No existing agent found with name '{AgentName}', creating new agent", _agentName);
                 var newAgentResponse = _client.Administration.CreateAgent(
@@ -70,7 +86,7 @@ namespace EchoBot.Services
                     name: _agentName,
                     instructions: "You are a helpful assistant integrated into a chatbot. Provide helpful, accurate, and conversational responses to user questions. Keep responses concise but informative.",
                     tools: new List<ToolDefinition> { new CodeInterpreterToolDefinition() });
-                
+
                 var newAgent = newAgentResponse.Value;
                 _logger.LogInformation("Created new agent with ID: {AgentId}", newAgent.Id);
                 return newAgent;

@@ -2,7 +2,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
 VisualStudioVersion = 18.0.11018.127
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoBot", "mikoko-echo-bot\EchoBot.csproj", "{B84A7F30-E998-B348-3FB9-62DDA7494EE1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FoundryAgentBot", "src\FoundryAgentBot\FoundryAgentBot.csproj", "{B84A7F30-E998-B348-3FB9-62DDA7494EE1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

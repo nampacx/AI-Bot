@@ -33,7 +33,7 @@ MoreInfo: https://docs.microsoft.com/en-us/azure/bot-service/tutorial-provision-
 
 - **azureBotId**:(required)           The globally unique and immutable bot ID. Also used to configure the displayName of the bot, which is mutable.
 - **azureBotSku**:                    The pricing tier of the Bot Service Registration. **Allowed values are: F0, S1(default)**.
-- **azureBotRegion**:                 Specifies the location of the new AzureBot. **Allowed values are: global(default), westeurope**.
+- **azureBotRegion**:                 Specifies the location of the new AzureBot. **Allowed values are: global(default), swedencentral**.
 - **botEndpoint**:                    Use to handle client messages, Such as https://<botappServiceName>.azurewebsites.net/api/messages.
 
 - **appType**:    Type of Bot Authentication. set as MicrosoftAppType in the Web App's Application Settings. **Allowed values are: MultiTenant(default), SingleTenant, UserAssignedMSI.**

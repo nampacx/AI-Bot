@@ -28,16 +28,16 @@ The deployment is handled by a PowerShell script that uses Azure CLI to provisio
 ### Script Parameters
 
 *   `ProjectName`: A unique name for your project.
-*   `RegionShort`: A short name for the Azure region (e.g., `weu` for West Europe).
+*   `RegionShort`: A short name for the Azure region (e.g., `sec` for Sweden Central).
 *   `Stage`: The deployment stage (e.g., `dev`, `tst`, `prd`).
-*   `Location`: The full name of the Azure location (e.g., `westeurope`).
+*   `Location`: The full name of the Azure location (e.g., `swedencentral`).
 
 ### Example
 
 ```powershell
-.\deploy.ps1 -ProjectName "mychatbot" -RegionShort "weu" -Stage "dev" -Location "westeurope"
+.\deploy.ps1 -ProjectName "mychatbot" -RegionShort "sec" -Stage "dev" -Location "swedencentral"
 ```
 
 This command will:
-1.  Create a resource group named `rg-mychatbot-weu-dev` if it doesn't already exist.
+1.  Create a resource group named `rg-mychatbot-sec-dev` if it doesn't already exist.
 2.  Deploy the resources defined in `main.bicep` into that resource group.

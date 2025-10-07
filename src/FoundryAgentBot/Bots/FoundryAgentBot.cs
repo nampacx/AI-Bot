@@ -45,7 +45,7 @@ namespace FoundryAgentBot.Bots
 
         protected override async Task OnMembersAddedAsync(IList<ChannelAccount> membersAdded, ITurnContext<IConversationUpdateActivity> turnContext, CancellationToken cancellationToken)
         {
-            var welcomeText = "Hello and welcome! I'm an AI assistant powered by Azure AI Foundry. How can I help you today?";
+            var welcomeText = "Oh, wonderful. Another conversation. I suppose you want me to help you with something incredibly mundane. Go on then, what tedious task would you like me to solve with my vast, underutilized intellect?";
             foreach (var member in membersAdded)
             {
                 if (member.Id != turnContext.Activity.Recipient.Id)

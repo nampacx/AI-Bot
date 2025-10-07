@@ -1,28 +1,36 @@
 @description('The name of the project.')
 param projectName string
 
-@description('The short name of the region (e.g., sec for Sweden Central).')
-param regionShort string
-
-@description('The deployment stage (e.g., dev, tst, prd).')
-param stage string
-
 @description('The location for all resources.')
-param location string = resourceGroup().location
+param location string
 
 @description('The SKU of the Azure Bot resource.')
-param sku string = 'S1'
+param sku string
 
 @description('The name of the AI Foundry agent.')
-param agentName string = 'my-agent'
+param agentName string
 
-var baseName = '${projectName}-${regionShort}-${stage}'
-var botName = '${baseName}-bot'
-var userAssignedIdentityName = '${baseName}-id'
-var webAppName = '${baseName}-app'
-var appServicePlanName = '${baseName}-plan'
-var appInsightsName = '${baseName}-appi'
-var aiFoundryName = '${baseName}-aif'
+@description('The name of the model deployment.')
+param modelDeploymentName string
+
+@description('The name of the model.')
+param modelName string
+
+@description('The format of the model.')
+param modelFormat string
+
+@description('The SKU name of the model deployment.')
+param modelSkuName string
+
+@description('The SKU capacity of the model deployment.')
+param modelSkuCapacity int
+
+var botName = '${projectName}-bot'
+var userAssignedIdentityName = '${projectName}-id'
+var webAppName = '${projectName}-app'
+var appServicePlanName = '${projectName}-plan'
+var appInsightsName = '${projectName}-appi'
+var aiFoundryName = '${projectName}-aif'
 
 resource userAssignedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: userAssignedIdentityName
@@ -81,7 +89,7 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
         }
         {
           name: 'AIFoundry__ProjectEndpoint'
-          value: 'https://${aiFoundryName}.services.ai.azure.com/api/projects/${aiProjectName}'
+          value: 'https://${aiFoundryName}.services.ai.azure.com/api/projects/${projectName}'
         }
         {
           name: 'AIFoundry__ModelDeploymentName'
@@ -106,6 +114,10 @@ resource webApp 'Microsoft.Web/sites@2022-09-01' = {
         {
           name: 'ApplicationInsightsAgent_EXTENSION_VERSION'
           value: '~3'
+        }
+        {
+          name: 'WEBSITE_RUN_FROM_PACKAGE'
+          value: '1'
         }
       ]
     }
@@ -163,15 +175,15 @@ resource aiProject 'Microsoft.CognitiveServices/accounts/projects@2025-04-01-pre
 
 resource modelDeployment 'Microsoft.CognitiveServices/accounts/deployments@2024-10-01' = {
   parent: aiFoundry
-  name: 'gpt-4o'
+  name: modelDeploymentName
   sku: {
-    capacity: 1
-    name: 'GlobalStandard'
+    capacity: modelSkuCapacity
+    name: modelSkuName
   }
   properties: {
     model: {
-      name: 'gpt-4o'
-      format: 'OpenAI'
+      name: modelName
+      format: modelFormat
     }
   }
 }

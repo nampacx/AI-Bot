@@ -1,3 +1,5 @@
+#nullable enable
+
 using Azure.AI.Agents.Persistent;
 using Azure.Core;
 using Azure.Identity;
@@ -6,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -73,15 +76,16 @@ namespace FoundryAgentBot.Services
             }
 
             // Check if agent already exists or create a new one
-            _agent = GetOrCreateAgent();
+            _agent = GetAgent() ?? CreateAgent();
 
             _logger.LogInformation("AI Foundry Agent Service initialized with agent ID: {AgentId}", _agent.Id);
         }
 
-        private PersistentAgent GetOrCreateAgent()
+        private PersistentAgent? GetAgent()
         {
             try
             {
+                _logger.LogInformation("Attempting to retrieve agent with name: {AgentName}", _agentName);
                 // Get all existing agents
                 var existingAgents = _client.Administration.GetAgents();
 
@@ -94,21 +98,64 @@ namespace FoundryAgentBot.Services
                     return existingAgent;
                 }
 
-                // No existing agent found, create a new one
-                _logger.LogInformation("No existing agent found with name '{AgentName}', creating new agent", _agentName);
-                var newAgentResponse = _client.Administration.CreateAgent(
-                    model: _modelDeploymentName,
-                    name: _agentName,
-                    instructions: "You are a helpful assistant integrated into a chatbot. Provide helpful, accurate, and conversational responses to user questions. Keep responses concise but informative.",
-                    tools: new List<ToolDefinition> { new CodeInterpreterToolDefinition() });
-
-                var newAgent = newAgentResponse.Value;
-                _logger.LogInformation("Created new agent with ID: {AgentId}", newAgent.Id);
-                return newAgent;
+                _logger.LogInformation("No existing agent found with name '{AgentName}'", _agentName);
+                return null;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error checking for existing agent or creating new agent");
+                _logger.LogError(ex, "Failed to get agent.");
+                // It's better to let the caller handle the exception or decide on fallback logic.
+                // In this case, we'll let it bubble up or return null if we want to attempt creation.
+                return null;
+            }
+        }
+
+        private PersistentAgent CreateAgent()
+        {
+            try
+            {
+                // No existing agent found, create a new one
+                _logger.LogInformation("Creating new agent with name '{AgentName}'", _agentName);
+
+                // Read instructions from prompty file
+                string instructions = "";
+                try
+                {
+                    var promptyContent = File.ReadAllText("instructions.prompty");
+                    var lines = promptyContent.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+
+                    var systemLines = lines
+                        .SkipWhile(line => !line.Trim().StartsWith("system:"))
+                        .Skip(1) // Skip the "system:" line itself
+                        .TakeWhile(line => !line.Trim().StartsWith("user:"))
+                        .ToList();
+
+                    if (systemLines.Any())
+                    {
+                        instructions = string.Join(Environment.NewLine, systemLines).Trim();
+                        _logger.LogInformation("Successfully parsed and extracted system instructions from instructions.prompty");
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Could not find 'system:' block in instructions.prompty. Creating agent without instructions.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to read or parse instructions.prompty. Creating agent without instructions.");
+                }
+
+                var newAgentResponse = _client.Administration.CreateAgent(
+                    model: _modelDeploymentName,
+                    name: _agentName,
+                    instructions: instructions);
+
+                _logger.LogInformation("Successfully created new agent with ID: {AgentId}", newAgentResponse.Value.Id);
+                return newAgentResponse.Value;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to create agent.");
                 throw;
             }
         }

@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "sku": {
+      "value": "S1"
+    },
+    "agentName": {
+      "value": "Marvin"
+    },
+    "modelDeploymentName": {
+      "value": "gpt-4o"
+    },
+    "modelName": {
+      "value": "gpt-4o"
+    },
+    "modelFormat": {
+      "value": "OpenAI"
+    },
+    "modelSkuName": {
+      "value": "GlobalStandard"
+    },
+    "modelSkuCapacity": {
+      "value": 1
+    }
+  }
+}

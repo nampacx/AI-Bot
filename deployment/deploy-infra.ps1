@@ -5,17 +5,11 @@ param (
     [string]$ProjectName,
 
     [Parameter(Mandatory=$true)]
-    [string]$RegionShort,
-
-    [Parameter(Mandatory=$true)]
-    [string]$Stage,
-
-    [Parameter(Mandatory=$true)]
     [string]$Location
 )
 
-$resourceGroupName = "rg-${ProjectName}-${RegionShort}-${Stage}"
-$deploymentName = "bicep-deployment-${ProjectName}-${Stage}-$(Get-Date -Format 'yyyyMMddHHmmss')"
+$resourceGroupName = "rg-${ProjectName}"
+$deploymentName = "bicep-deployment-${ProjectName}-$(Get-Date -Format 'yyyyMMddHHmmss')"
 
 # Ensure you are logged into Azure with 'az login'
 
@@ -37,10 +31,9 @@ Write-Host "Starting Bicep deployment '$deploymentName'..."
 az deployment group create `
     --name $deploymentName `
     --resource-group $resourceGroupName `
-    --template-file "./main.bicep" `
+    --template-file "../iac/main.bicep" `
+    --parameters "../iac/main.parameters.json" `
     --parameters projectName=$ProjectName `
-                 regionShort=$RegionShort `
-                 stage=$Stage `
                  location=$Location
 
 Write-Host "Deployment script finished."
